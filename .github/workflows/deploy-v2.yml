@@ -7,7 +7,7 @@ on:
        - main
 env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  AWS_OIDC_ROLE_NAME: gha-oidc-lambda-canary-demo
+  AWS_OIDC_ROLE_NAME: gha-oidc-lambda-canary-demo-role
 jobs:
   deploy:
     runs-on: ubuntu-latest
