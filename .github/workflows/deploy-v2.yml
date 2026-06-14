@@ -1,0 +1,42 @@
+name: Deploy-v2
+
+on:
+  pull_request: 
+    types: [opened,reopened,synchronize]
+    branches: 
+       - main
+env:
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_OIDC_ROLE_NAME: gha-oidc-lambda-canary-demo
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write 
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+      - name: go mod tidy
+        run: go mod tidy
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_OIDC_ROLE_NAME }}
+          aws-region: ap-northeast-1
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./cmd/v2/Dockerfile
+          push: true
+          tags: ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-1.amazonaws.com/canary:latest
+
+
+
