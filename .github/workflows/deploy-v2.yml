@@ -41,6 +41,7 @@ jobs:
           file: ./cmd/v2/Dockerfile
           push: true
           tags: ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-1.amazonaws.com/canary:latest
+          provenance: false
 
 
 
