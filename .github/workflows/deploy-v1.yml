@@ -1,0 +1,48 @@
+name: Deploy-v1
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+env:
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_OIDC_ROLE_NAME: gha-oidc-lambda-canary-demo-role
+  FUNCTION_NAME: canary_test_v1
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+      - name: go mod vendor
+        run: go mod vendor
+      - name: Build
+        run: GOOS=linux GOARCH=amd64 go build -o bootstrap ./cmd/v1
+      - name: Zip
+        run: zip ${{ env.FUNCTION_NAME }}.zip bootstrap
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_OIDC_ROLE_NAME }}
+          aws-region: ap-northeast-1
+      - name: Update Function
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ env.FUNCTION_NAME }} \
+            --zip-file fileb://${{ env.FUNCTION_NAME }}..zip
+      - name: Wait for update-function-code completion
+        timeout-minutes: 10
+        run: |
+          aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
