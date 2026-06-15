@@ -50,7 +50,8 @@ jobs:
       - name: Update Functions
         run: |
           aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --image-uri ${{ env.ECR_URL }}:latest
-
-
-
+      - name: Wait for update-function-code completion
+        timeout-minutes: 10
+        run: |
+          aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
 
