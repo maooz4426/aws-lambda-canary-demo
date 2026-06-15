@@ -1,11 +1,10 @@
 name: Deploy-v2
 
 on:
-  workflow_dispatch: 
-  # pull_request: 
-  #   types: [opened,reopened,synchronize]
-  #   branches: 
-  #      - main
+  pull_request: 
+    types: [opened,reopened,synchronize]
+    branches: 
+       - main
 env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_OIDC_ROLE_NAME: gha-oidc-lambda-canary-demo-role
