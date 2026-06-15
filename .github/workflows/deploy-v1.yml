@@ -41,7 +41,7 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name ${{ env.FUNCTION_NAME }} \
-            --zip-file fileb://${{ env.FUNCTION_NAME }}..zip
+            --zip-file fileb://${{ env.FUNCTION_NAME }}.zip
       - name: Wait for update-function-code completion
         timeout-minutes: 10
         run: |
