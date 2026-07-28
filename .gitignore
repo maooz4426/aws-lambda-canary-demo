@@ -25,3 +25,10 @@ vendor/
 go.work
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+### Terraform ###
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform/modules/lambda/zip/init/lambda_init.zip
